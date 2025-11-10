@@ -1,0 +1,23 @@
+---
+- name: Deploy Node.js app on Ubuntu VM
+  hosts: cv_vm
+  become: yes
+
+  tasks:
+    - name: Ensure Docker is installed (already done by install_docker.yml)
+      command: docker --version
+      register: docker_installed
+      failed_when: docker_installed.rc != 0
+
+    - name: Pull Docker image from Docker Hub
+      command: docker pull hanineissam/reposfortest:latest
+
+    - name: Stop old container if running
+      command: docker rm -f cv-app
+      ignore_errors: yes
+
+    - name: Run the container
+      command: >
+        docker run -d --name cv-app
+        -p 3000:3000
+        hanineissam/reposfortest:latest
